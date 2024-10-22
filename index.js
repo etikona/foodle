@@ -25,19 +25,6 @@ const client = new MongoClient(uri, {
   },
 });
 
-app.get("/api/test", async (req, res) => {
-  try {
-    const testResult = await client
-      .db("foodStation")
-      .collection("test")
-      .findOne({});
-    res.send({ message: "MongoDB and JWT working", testResult });
-  } catch (err) {
-    console.error("Error testing MongoDB or JWT:", err);
-    res.status(500).send({ message: "Test failed", error: err.message });
-  }
-});
-
 const verifyToken = (req, res, next) => {
   const token = req?.cookies?.token;
   if (!token) {
@@ -52,125 +39,125 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-// async function run() {
-//   try {
-//     await client.connect();
-//     const userCollection = client.db("foodStation").collection("users");
-//     const foodCollection = client.db("foodStation").collection("food");
-//     const requestCollection = client.db("foodStation").collection("request");
+async function run() {
+  try {
+    await client.connect();
+    const userCollection = client.db("foodStation").collection("users");
+    const foodCollection = client.db("foodStation").collection("food");
+    const requestCollection = client.db("foodStation").collection("request");
 
-//     // app.post("/jwt", async (req, res) => {
-//     //   const logged = req.body;
-//     //   const token = jwt.sign(logged, process.env.ACCESS_TOKEN_SECRET, {
-//     //     expiresIn: "1h",
-//     //   });
-//     //   res
-//     //     .cookie("token", token, {
-//     //       httpOnly: true,
-//     //       secure: true,
-//     //       sameSite: "none",
-//     //     })
-//     //     .send({ success: true });
-//     // });
-//     // Testing Route
-//     app.get("/api/test", (req, res) => {
-//       res.send("Testing route works properly");
-//     });
-//     // User-related API
-//     app.get("/api/users", async (req, res) => {
-//       const users = await userCollection.find({}).toArray();
-//       res.send(users);
-//     });
+    app.post("/jwt", async (req, res) => {
+      const logged = req.body;
+      const token = jwt.sign(logged, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+        })
+        .send({ success: true });
+    });
+    // Testing Route
+    app.get("/api/test", (req, res) => {
+      res.send("Testing route works properly");
+    });
+    // User-related API
+    app.get("/users", async (req, res) => {
+      const users = await userCollection.find({}).toArray();
+      res.send(users);
+    });
 
-//     app.post("/api/users", async (req, res) => {
-//       const user = req.body;
-//       const result = await userCollection.insertOne(user);
-//       res.send(result);
-//     });
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
 
-//     // Food-related API
-//     app.get("/api/food", async (req, res) => {
-//       const userEmail = req.query.email;
-//       let query = {};
-//       if (userEmail) {
-//         query = { email: userEmail };
-//       }
-//       const foods = await foodCollection.find(query).toArray();
-//       res.send(foods);
-//     });
+    // Food-related API
+    app.get("/food", async (req, res) => {
+      const userEmail = req.query.email;
+      let query = {};
+      if (userEmail) {
+        query = { email: userEmail };
+      }
+      const foods = await foodCollection.find(query).toArray();
+      res.send(foods);
+    });
 
-//     app.post("/api/food", async (req, res) => {
-//       const food = req.body;
-//       const result = await foodCollection.insertOne(food);
-//       res.send(result);
-//     });
+    app.post("/food", async (req, res) => {
+      const food = req.body;
+      const result = await foodCollection.insertOne(food);
+      res.send(result);
+    });
 
-//     app.get("/api/food/:id", async (req, res) => {
-//       const id = req.params.id;
-//       const food = await foodCollection.findOne({ _id: new ObjectId(id) });
-//       res.send(food);
-//     });
+    app.get("/food/:id", async (req, res) => {
+      const id = req.params.id;
+      const food = await foodCollection.findOne({ _id: new ObjectId(id) });
+      res.send(food);
+    });
 
-//     app.patch("/api/food/:id", async (req, res) => {
-//       const foodId = req.params.id;
-//       const updatedData = req.body;
+    app.patch("/food/:id", async (req, res) => {
+      const foodId = req.params.id;
+      const updatedData = req.body;
 
-//       if (!updatedData.food_name || !updatedData.food_quantity) {
-//         return res.status(400).json({ message: "Required fields missing" });
-//       }
+      if (!updatedData.food_name || !updatedData.food_quantity) {
+        return res.status(400).json({ message: "Required fields missing" });
+      }
 
-//       const result = await foodCollection.updateOne(
-//         { _id: new ObjectId(foodId) },
-//         { $set: updatedData }
-//       );
+      const result = await foodCollection.updateOne(
+        { _id: new ObjectId(foodId) },
+        { $set: updatedData }
+      );
 
-//       if (result.matchedCount === 0) {
-//         return res.status(404).json({ message: "Food not found" });
-//       }
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ message: "Food not found" });
+      }
 
-//       res.status(200).json({ message: "Food updated successfully!" });
-//     });
+      res.status(200).json({ message: "Food updated successfully!" });
+    });
 
-//     app.delete("/api/food/:id", async (req, res) => {
-//       const id = req.params.id;
-//       const food = await foodCollection.deleteOne({ _id: new ObjectId(id) });
-//       res.send(food);
-//     });
+    app.delete("/food/:id", async (req, res) => {
+      const id = req.params.id;
+      const food = await foodCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(food);
+    });
 
-//     // Request-related API
-//     app.get("/api/request", async (req, res) => {
-//       const request = await requestCollection.find({}).toArray();
-//       res.send(request);
-//     });
+    // Request-related API
+    app.get("/request", async (req, res) => {
+      const request = await requestCollection.find({}).toArray();
+      res.send(request);
+    });
 
-//     app.get("/api/request/:email", async (req, res) => {
-//       const email = req.params.email;
-//       const result = await requestCollection
-//         .find({ "donator.email": email })
-//         .toArray();
-//       if (result.length === 0) {
-//         return res
-//           .status(404)
-//           .send({ message: "No requests found for this email" });
-//       }
-//       res.send(result);
-//     });
+    app.get("/request/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await requestCollection
+        .find({ "donator.email": email })
+        .toArray();
+      if (result.length === 0) {
+        return res
+          .status(404)
+          .send({ message: "No requests found for this email" });
+      }
+      res.send(result);
+    });
 
-//     app.post("/api/request", async (req, res) => {
-//       const request = req.body;
-//       const result = await requestCollection.insertOne(request);
-//       res.send(result);
-//     });
+    app.post("/request", async (req, res) => {
+      const request = req.body;
+      const result = await requestCollection.insertOne(request);
+      res.send(result);
+    });
 
-//     app.delete("/api/request/:id", async (req, res) => {
-//       const id = req.params.id;
-//       const food = await requestCollection.deleteOne({ _id: new ObjectId(id) });
-//       res.send(food);
-//     });
-//   } catch (err) {
-//     console.error("Error during MongoDB operations:", err);
-//   }
-// }
+    app.delete("/request/:id", async (req, res) => {
+      const id = req.params.id;
+      const food = await requestCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(food);
+    });
+  } catch (err) {
+    console.error("Error during MongoDB operations:", err);
+  }
+}
 
 run().catch(console.dir);
 app.get("/api/testing", (req, res) => {
