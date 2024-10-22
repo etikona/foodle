@@ -46,19 +46,19 @@ async function run() {
     const foodCollection = client.db("foodStation").collection("food");
     const requestCollection = client.db("foodStation").collection("request");
 
-    app.post("/jwt", async (req, res) => {
-      const logged = req.body;
-      const token = jwt.sign(logged, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
-      });
-      res
-        .cookie("token", token, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "none",
-        })
-        .send({ success: true });
-    });
+    // app.post("/jwt", async (req, res) => {
+    //   const logged = req.body;
+    //   const token = jwt.sign(logged, process.env.ACCESS_TOKEN_SECRET, {
+    //     expiresIn: "1h",
+    //   });
+    //   res
+    //     .cookie("token", token, {
+    //       httpOnly: true,
+    //       secure: true,
+    //       sameSite: "none",
+    //     })
+    //     .send({ success: true });
+    // });
     // Testing Route
     app.get("/api/test", (req, res) => {
       res.send("Testing route works properly");
